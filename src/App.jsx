@@ -5,6 +5,7 @@ import Navigation from './components/Navigation';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import Library from './pages/Library';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -20,6 +21,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/library"
+            element={
+              <PrivateRoute>
+                <Library />
               </PrivateRoute>
             }
           />

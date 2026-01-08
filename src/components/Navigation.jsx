@@ -21,6 +21,7 @@ function Navigation() {
           {currentUser ? (
             <>
               <Link to="/dashboard">Dashboard</Link>
+              <Link to="/library">Library</Link>
               <span>{currentUser.email}</span>
               <button onClick={handleLogout}>Log Out</button>
             </>

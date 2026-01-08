@@ -85,6 +85,13 @@ nav button:hover {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.auth-logo {
+  display: block;
+  max-width: 200px;
+  height: auto;
+  margin: 0 auto 1.5rem;
+}
+
 .auth-container h2 {
   margin-bottom: 1.5rem;
   text-align: center;
@@ -176,9 +183,36 @@ nav button:hover {
   background-color: #f8d7da;
   color: #721c24;
   padding: 0.75rem;
+  padding-right: 2.5rem;
   border-radius: 4px;
   margin-bottom: 1rem;
   border: 1px solid #f5c6cb;
+  white-space: pre-line;
+  position: relative;
+}
+
+.error-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #721c24;
+  cursor: pointer;
+  padding: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.error-close:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .success {
@@ -325,4 +359,308 @@ nav button:hover {
 
 .modal-actions button {
   flex: 1;
+}
+
+/* Dashboard Stats */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-logo {
+  max-width: 120px;
+  height: auto;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 0.5rem;
+}
+
+.stat-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.breakdown-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.breakdown-card h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.breakdown-label {
+  color: #555;
+}
+
+.breakdown-value {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.empty-text {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Library Page */
+.library-container {
+  max-width: 1400px;
+}
+
+.library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.print-header {
+  display: none;
+}
+
+.print-footer {
+  display: none;
+}
+
+.library-header h2 {
+  color: #333;
+}
+
+.library-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filters-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-input {
+  flex: 2;
+  min-width: 250px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.filter-select {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.results-count {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+}
+
+.scores-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.scores-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.scores-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  background: #333;
+  color: white;
+  z-index: 10;
+}
+
+.scores-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.scores-table th.sortable:hover {
+  background: #555;
+}
+
+.scores-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  color: #555;
+}
+
+.scores-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.actions-col {
+  width: 100px;
+  text-align: center;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin: 0 0.25rem;
+  transition: transform 0.2s;
+}
+
+.btn-icon:hover {
+  transform: scale(1.2);
+}
+
+.btn-edit:hover {
+  color: #007bff;
+}
+
+.btn-delete:hover {
+  color: #dc3545;
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  nav,
+  .library-header,
+  .filters-section,
+  .actions-col,
+  .print-footer {
+    display: none !important;
+  }
+
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 2rem;
+    page-break-after: avoid;
+  }
+
+  .print-logo {
+    max-width: 100px;
+    height: auto;
+    margin: 0 auto 1rem;
+  }
+
+  .print-header h1 {
+    font-size: 2rem;
+    margin: 0;
+    color: #333;
+  }
+
+  .table-container {
+    box-shadow: none;
+  }
+
+  .scores-table {
+    font-size: 0.8rem;
+  }
+
+  .scores-table th,
+  .scores-table td {
+    padding: 0.5rem;
+  }
 }

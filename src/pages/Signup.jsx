@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../Resources/LCB.png';
 
 function Signup() {
   const [email, setEmail] = useState('');
@@ -32,6 +33,7 @@ function Signup() {
 
   return (
     <div className="auth-container">
+      <img src={logo} alt="LCB Logo" className="auth-logo" />
       <h2>Sign Up</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
