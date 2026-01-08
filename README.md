@@ -1,6 +1,6 @@
 # LCB Music Scores Database
 
-A cloud-based music score management system for the Leigh Congregational Band (LCB), built with React and Firebase.
+A cloud-based music score management system for the Ludlow Concert Band (LCB), built with React and Firebase.
 
 ## Live Application
 
@@ -253,7 +253,7 @@ For questions or issues, contact the project maintainer.
 
 ## License
 
-Private project for Leigh Congregational Band internal use.
+Private project for Ludlow Concert Band internal use.
 
 ---
 
