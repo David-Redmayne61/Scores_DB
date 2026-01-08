@@ -416,3 +416,11 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Vite build output
+dist/
+dist-ssr/
+
+# Firebase cache
+.firebase/
+.firebaserc
