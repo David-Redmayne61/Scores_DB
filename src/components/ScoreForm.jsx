@@ -1,28 +1,101 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getGenres, addGenre, migrateLocalStorageGenres } from '../services/genreService';
 
-function ScoreForm({ onSubmit, initialData = {}, onCancel }) {
+function ScoreForm({ onSubmit, onSaveAndContinue, initialData, onCancel, onAddAnother }) {
   const [formData, setFormData] = useState({
-    title: initialData.title || '',
-    composer: initialData.composer || '',
-    genre: initialData.genre || '',
-    instrument: initialData.instrument || '',
-    difficulty: initialData.difficulty || '',
-    year: initialData.year || '',
-    publisher: initialData.publisher || '',
-    notes: initialData.notes || '',
+    title: initialData?.title || '',
+    composer: initialData?.composer || '',
+    arranger: initialData?.arranger || '',
+    genre: initialData?.genre || '',
+    genre2: initialData?.genre2 || '',
+    difficulty: initialData?.difficulty || '',
+    duration: initialData?.duration || '',
+    notes: initialData?.notes || '',
   });
+
+  const [formDirty, setFormDirty] = useState(false);
+  const [genres, setGenres] = useState([]);
+  const [showGenreInput, setShowGenreInput] = useState(false);
+  const [customGenre, setCustomGenre] = useState('');
+  const [genreError, setGenreError] = useState('');
+
+  // Load genres from Firestore on mount and migrate localStorage
+  useEffect(() => {
+    loadGenres();
+  }, []);
+
+  async function loadGenres() {
+    // First migrate any localStorage genres to Firestore
+    await migrateLocalStorageGenres();
+    // Then load the complete list
+    const genreList = await getGenres();
+    setGenres(genreList);
+  }
+
+  async function handleAddCustomGenre() {
+    if (customGenre.trim()) {
+      const newGenre = customGenre.trim();
+      const result = await addGenre(newGenre);
+      
+      if (result.success) {
+        setGenres(result.genres);
+        // Determine which field triggered the custom genre
+        const targetField = formData.genre === '__custom__' ? 'genre' : 'genre2';
+        setFormData((prev) => ({ ...prev, [targetField]: newGenre }));
+        setCustomGenre('');
+        setShowGenreInput(false);
+        setGenreError('');
+      } else {
+        setGenreError(result.message);
+      }
+    }
+  }
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormDirty(true);
+    if ((name === 'genre' || name === 'genre2') && value === '__custom__') {
+      setShowGenreInput(true);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   }
 
   function handleSubmit(e) {
     e.preventDefault();
+    setFormDirty(false);
     onSubmit(formData);
+  }
+
+  async function handleAddAnother() {
+    if (formDirty && (formData.title || formData.composer)) {
+      // Save current record first using the save and continue handler
+      const form = document.querySelector('form');
+      if (form.checkValidity()) {
+        try {
+          if (onSaveAndContinue) {
+            await onSaveAndContinue(formData);
+          }
+          setFormDirty(false);
+          if (onAddAnother) {
+            onAddAnother();
+          }
+        } catch (err) {
+          // Error handled in parent
+        }
+      } else {
+        form.reportValidity();
+      }
+    } else if (onAddAnother) {
+      onAddAnother();
+    }
   }
 
   return (
@@ -52,27 +125,137 @@ function ScoreForm({ onSubmit, initialData = {}, onCancel }) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="genre">Genre</label>
+        <label htmlFor="arranger">Arranger</label>
         <input
           type="text"
-          id="genre"
-          name="genre"
-          value={formData.genre}
+          id="arranger"
+          name="arranger"
+          value={formData.arranger}
           onChange={handleChange}
-          placeholder="e.g., Classical, Jazz, Pop"
         />
       </div>
 
       <div className="form-group">
-        <label htmlFor="instrument">Instrument</label>
-        <input
-          type="text"
-          id="instrument"
-          name="instrument"
-          value={formData.instrument}
+        <label htmlFor="genre">Genre</label>
+        <select
+          id="genre"
+          name="genre"
+          value={formData.genre}
           onChange={handleChange}
-          placeholder="e.g., Piano, Violin, Orchestra"
-        />
+        >
+          <option value="">Select genre</option>
+          {genres.sort().map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
+          ))}
+          <option value="__custom__">+ Add New Genre</option>
+        </select>
+
+        {(showGenreInput || formData.genre === '__custom__') && (
+          <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+            <input
+              type="text"
+              value={customGenre}
+              onChange={(e) => setCustomGenre(e.target.value)}
+              placeholder="Enter new genre..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddCustomGenre();
+                }
+              }}
+              autoFocus
+            />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleAddCustomGenre}
+              style={{ padding: '0.5rem 1rem' }}
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                setShowGenreInput(false);
+                setCustomGenre('');
+                if (formData.genre === '__custom__') {
+                  setFormData((prev) => ({ ...prev, genre: '' }));
+                }
+              }}
+              style={{ padding: '0.5rem 1rem' }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="genre2">Genre 2 (Optional)</label>
+        <select
+          id="genre2"
+          name="genre2"
+          value={formData.genre2}
+          onChange={handleChange}
+        >
+          <option value="">Select second genre</option>
+          {genres.sort().map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
+          ))}
+          <option value="__custom__">+ Add New Genre</option>
+        </select>
+
+        {(showGenreInput || formData.genre2 === '__custom__') && formData.genre !== '__custom__' && (
+          <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+            {genreError && <div style={{ color: '#dc3545', fontSize: '0.9rem' }}>{genreError}</div>}
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                value={customGenre}
+                onChange={(e) => {
+                  setCustomGenre(e.target.value);
+                  setGenreError('');
+                }}
+                placeholder="Enter new genre..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomGenre();
+                  }
+                }}
+                autoFocus
+              />
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleAddCustomGenre}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setShowGenreInput(false);
+                  setCustomGenre('');
+                  setGenreError('');
+                  if (formData.genre2 === '__custom__') {
+                    setFormData((prev) => ({ ...prev, genre2: '' }));
+                  }
+                }}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="form-group">
@@ -92,25 +275,14 @@ function ScoreForm({ onSubmit, initialData = {}, onCancel }) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="year">Year</label>
-        <input
-          type="number"
-          id="year"
-          name="year"
-          value={formData.year}
-          onChange={handleChange}
-          placeholder="e.g., 1810"
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="publisher">Publisher</label>
+        <label htmlFor="duration">Duration (MM:SS)</label>
         <input
           type="text"
-          id="publisher"
-          name="publisher"
-          value={formData.publisher}
+          id="duration"
+          name="duration"
+          value={formData.duration}
           onChange={handleChange}
+          placeholder="e.g., 3:45 or 12:30"
         />
       </div>
 
@@ -126,9 +298,20 @@ function ScoreForm({ onSubmit, initialData = {}, onCancel }) {
       </div>
 
       <div className="modal-actions">
-        <button type="submit" className="btn btn-primary">
-          {initialData.title ? 'Update Score' : 'Add Score'}
-        </button>
+        {!initialData?.title && onAddAnother ? (
+          <>
+            <button type="submit" className="btn btn-secondary">
+              Save & Close
+            </button>
+            <button type="button" className="btn btn-primary" onClick={handleAddAnother}>
+              Save & Add Another
+            </button>
+          </>
+        ) : (
+          <button type="submit" className="btn btn-primary">
+            {initialData?.title ? 'Update Score' : 'Save'}
+          </button>
+        )}
         {onCancel && (
           <button type="button" className="btn btn-secondary" onClick={onCancel}>
             Cancel
