@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getGenres, addGenre, migrateLocalStorageGenres } from '../services/genreService';
 
 function ScoreForm({ onSubmit, onSaveAndContinue, initialData, onCancel, onAddAnother }) {
@@ -18,11 +18,19 @@ function ScoreForm({ onSubmit, onSaveAndContinue, initialData, onCancel, onAddAn
   const [showGenreInput, setShowGenreInput] = useState(false);
   const [customGenre, setCustomGenre] = useState('');
   const [genreError, setGenreError] = useState('');
+  const titleInputRef = useRef(null);
 
   // Load genres from Firestore on mount and migrate localStorage
   useEffect(() => {
     loadGenres();
   }, []);
+
+  // Focus the title field when component mounts or when initialData changes to null (Add Another)
+  useEffect(() => {
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, [initialData]);
 
   async function loadGenres() {
     // First migrate any localStorage genres to Firestore
@@ -109,6 +117,7 @@ function ScoreForm({ onSubmit, onSaveAndContinue, initialData, onCancel, onAddAn
           value={formData.title}
           onChange={handleChange}
           required
+          ref={titleInputRef}
         />
       </div>
 

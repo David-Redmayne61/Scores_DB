@@ -409,6 +409,25 @@ function Library() {
   // Get unique genres for filter dropdown
   const uniqueGenres = [...new Set(scores.flatMap((s) => [s.genre, s.genre2].filter(Boolean)))].sort();
 
+  // Group scores by first letter
+  function groupScoresByLetter(scores) {
+    const grouped = {};
+    scores.forEach(score => {
+      const sortBy = sortField === 'composer' ? score.composer : score.title;
+      const firstChar = (sortBy || '?').charAt(0).toUpperCase();
+      // Group numbers under '#', everything else by letter
+      const firstLetter = /[0-9]/.test(firstChar) ? '#' : firstChar;
+      if (!grouped[firstLetter]) {
+        grouped[firstLetter] = [];
+      }
+      grouped[firstLetter].push(score);
+    });
+    return grouped;
+  }
+
+  const groupedScores = groupScoresByLetter(filteredScores);
+  const availableLetters = Object.keys(groupedScores).sort();
+
   if (loading) {
     return <div className="loading">Loading scores...</div>;
   }
@@ -512,64 +531,88 @@ function Library() {
           </p>
         </div>
       ) : (
-        <div className="table-container">
-          <table className="scores-table">
-            <thead>
-              <tr>
-                <th onClick={() => handleSort('title')} className="sortable">
-                  Title {sortField === 'title' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('composer')} className="sortable">
-                  Composer {sortField === 'composer' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('arranger')} className="sortable">
-                  Arranger {sortField === 'arranger' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('genre')} className="sortable">
-                  Genre {sortField === 'genre' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('difficulty')} className="sortable">
-                  Difficulty {sortField === 'difficulty' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th onClick={() => handleSort('duration')} className="sortable">
-                  Duration {sortField === 'duration' && (sortDirection === 'asc' ? '▲' : '▼')}
-                </th>
-                <th className="actions-col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredScores.map((score) => (
-                <tr key={score.id}>
-                  <td>{score.title}</td>
-                  <td>{score.composer}</td>
-                  <td>{score.arranger || '-'}</td>
-                  <td>
-                    {score.genre}
-                    {score.genre2 && `, ${score.genre2}`}
-                  </td>
-                  <td>{score.difficulty || '-'}</td>
-                  <td>{score.duration || '-'}</td>
-                  <td className="actions-col">
-                    <button
-                      className="btn-icon btn-edit"
-                      onClick={() => openEditModal(score)}
-                      title="Edit"
-                    >
-                      ✎
-                    </button>
-                    <button
-                      className="btn-icon btn-delete"
-                      onClick={() => handleDeleteScore(score.id)}
-                      title="Delete"
-                    >
-                      🗑
-                    </button>
-                  </td>
-                </tr>
+        <>
+          {/* Alphabetical Index */}
+          {availableLetters.length > 1 && (
+            <div className="alphabet-index">
+              {availableLetters.map(letter => (
+                <a 
+                  key={letter} 
+                  href={`#letter-${letter}`}
+                  className="alphabet-link"
+                >
+                  {letter}
+                </a>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          )}
+
+          <div className="table-container">
+            {availableLetters.map(letter => (
+              <div key={letter} id={`letter-${letter}`} className="letter-section">
+                <div className="letter-header">
+                  <h3>{letter}</h3>
+                </div>
+                <table className="scores-table">
+                  <thead>
+                    <tr>
+                      <th onClick={() => handleSort('title')} className="sortable">
+                        Title {sortField === 'title' && (sortDirection === 'asc' ? '▲' : '▼')}
+                      </th>
+                      <th onClick={() => handleSort('composer')} className="sortable">
+                        Composer {sortField === 'composer' && (sortDirection === 'asc' ? '▲' : '▼')}
+                      </th>
+                      <th onClick={() => handleSort('arranger')} className="sortable">
+                        Arranger {sortField === 'arranger' && (sortDirection === 'asc' ? '▲' : '▼')}
+                      </th>
+                      <th onClick={() => handleSort('genre')} className="sortable">
+                        Genre {sortField === 'genre' && (sortDirection === 'asc' ? '▲' : '▼')}
+                      </th>
+                      <th onClick={() => handleSort('difficulty')} className="sortable">
+                        Difficulty {sortField === 'difficulty' && (sortDirection === 'asc' ? '▲' : '▼')}
+                      </th>
+                      <th onClick={() => handleSort('duration')} className="sortable">
+                        Duration {sortField === 'duration' && (sortDirection === 'asc' ? '▲' : '▼')}
+                      </th>
+                      <th className="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupedScores[letter].map((score) => (
+                      <tr key={score.id}>
+                        <td>{score.title}</td>
+                        <td>{score.composer}</td>
+                        <td>{score.arranger || '-'}</td>
+                        <td>
+                          {score.genre}
+                          {score.genre2 && `, ${score.genre2}`}
+                        </td>
+                        <td>{score.difficulty || '-'}</td>
+                        <td>{score.duration || '-'}</td>
+                        <td className="actions-col">
+                          <button
+                            className="btn-icon btn-edit"
+                            onClick={() => openEditModal(score)}
+                            title="Edit"
+                          >
+                            ✎
+                          </button>
+                          <button
+                            className="btn-icon btn-delete"
+                            onClick={() => handleDeleteScore(score.id)}
+                            title="Delete"
+                          >
+                            🗑
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {showModal && (
